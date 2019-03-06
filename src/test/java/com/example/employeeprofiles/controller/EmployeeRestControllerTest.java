@@ -15,10 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -34,12 +32,12 @@ public class EmployeeRestControllerTest {
     private EmployeeRepository employeeRepository;
 
     @Test
-    public void whenGet_thenReturns200() throws Exception {
+    public void whenGetEmployee_thenReturns200() throws Exception {
         mockMvc.perform(get("/employee")).andExpect(status().isOk());
     }
 
     @Test
-    public void whenGet_thenMapsToRepository() throws Exception {
+    public void whenGetEmployee_thenMapToFindAll() throws Exception {
         // when
         mockMvc.perform(get("/employee"));
 
@@ -48,7 +46,7 @@ public class EmployeeRestControllerTest {
     }
 
     @Test
-    public void whenPostValidInput_thenReturns200() throws Exception {
+    public void whenPostEmployeeWithValidInput_thenReturns200() throws Exception {
         // given
         Employee alex = new Employee();
         alex.setFirstName("Alex");
@@ -61,7 +59,7 @@ public class EmployeeRestControllerTest {
     }
 
     @Test
-    public void whenPostNullValue_thenReturns400() throws Exception {
+    public void whenPostEmployeeWithInvalidInput_thenReturns400() throws Exception {
         // given
         Employee alex = new Employee();
         alex.setFirstName("Alex");
@@ -73,7 +71,7 @@ public class EmployeeRestControllerTest {
     }
 
     @Test
-    public void whenPostValidInput_thenMapsToRepository() throws Exception {
+    public void whenPostEmployeeWithValidInput_thenMapsToSave() throws Exception {
         // given
         Employee alex = new Employee();
         alex.setFirstName("Alex");
@@ -91,4 +89,93 @@ public class EmployeeRestControllerTest {
         assertThat(employeeCaptor.getValue().getLastName()).isEqualTo("Test");
     }
 
+    @Test
+    public void whenPutEmployeeWithValidInput_thenReturns200() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
+        when(employeeRepository.save(any(Employee.class))).thenReturn(alex);
+
+        // then
+        mockMvc.perform(put("/employee/1")
+                .content(objectMapper.writeValueAsString(alex))
+                .contentType("application/json"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void whenPutEmployeeWithInvalidInput_thenReturns404() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        // then
+        mockMvc.perform(put("/employee/2")
+                .content(objectMapper.writeValueAsString(alex))
+                .contentType("application/json"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void whenPutEmployeeWithValidInput_thenMapsToSave() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        // when
+        when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
+        mockMvc.perform(post("/employee")
+                .content(objectMapper.writeValueAsString(alex))
+                .contentType("application/json"));
+
+        // then
+        ArgumentCaptor<Employee> employeeCaptor = ArgumentCaptor.forClass(Employee.class);
+        verify(employeeRepository, times(1)).save(employeeCaptor.capture());
+        assertThat(employeeCaptor.getValue().getFirstName()).isEqualTo("Alex");
+        assertThat(employeeCaptor.getValue().getLastName()).isEqualTo("Test");
+    }
+
+    @Test
+    public void whenDeleteEmployeeWithValidId_thenReturns200() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
+
+        // then
+        mockMvc.perform(delete("/employee/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void whenDeleteEmployeeWithInvalidId_thenReturns404() throws Exception {
+        // given
+        mockMvc.perform(delete("/employee/1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void whenDeleteEmployeeWithValidId_thenMapsToDelete() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        // when
+        when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
+        mockMvc.perform(delete("/employee/1"));
+
+        // then
+        ArgumentCaptor<Employee> employeeCaptor = ArgumentCaptor.forClass(Employee.class);
+        verify(employeeRepository, times(1)).delete(employeeCaptor.capture());
+        assertThat(employeeCaptor.getValue().getFirstName()).isEqualTo("Alex");
+        assertThat(employeeCaptor.getValue().getLastName()).isEqualTo("Test");
+    }
 }
