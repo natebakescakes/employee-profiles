@@ -3,15 +3,19 @@ package com.example.employeeprofiles.controller;
 import com.example.employeeprofiles.model.Employee;
 import com.example.employeeprofiles.repository.EmployeeRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,6 +47,12 @@ public class EmployeeRestControllerTest {
 
         // then
         verify(employeeRepository, times(1)).findAll(any(PageRequest.class));
+    }
+
+    @Test
+    @Ignore
+    public void whenGetEmployee_thenReturnsPageRequestJson() throws Exception {
+        throw new NotImplementedException();
     }
 
     @Test
@@ -87,6 +97,25 @@ public class EmployeeRestControllerTest {
         verify(employeeRepository, times(1)).save(employeeCaptor.capture());
         assertThat(employeeCaptor.getValue().getFirstName()).isEqualTo("Alex");
         assertThat(employeeCaptor.getValue().getLastName()).isEqualTo("Test");
+    }
+
+    @Test
+    public void whenPostEmployeeWithValidInput_thenReturnsEmployeeJson() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        // when
+        when(employeeRepository.save(any(Employee.class))).thenReturn(alex);
+
+        MvcResult mvcResult = mockMvc.perform(post("/employee")
+                .content(objectMapper.writeValueAsString(alex))
+                .contentType("application/json")).andReturn();
+
+        // then
+        assertThat(objectMapper.writeValueAsString(alex))
+                .isEqualToIgnoringWhitespace(mvcResult.getResponse().getContentAsString());
     }
 
     @Test
@@ -138,6 +167,26 @@ public class EmployeeRestControllerTest {
         verify(employeeRepository, times(1)).save(employeeCaptor.capture());
         assertThat(employeeCaptor.getValue().getFirstName()).isEqualTo("Alex");
         assertThat(employeeCaptor.getValue().getLastName()).isEqualTo("Test");
+    }
+
+    @Test
+    public void whenPutEmployeeWithValidInput_thenReturnsEmployeeJson() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        // when
+        when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
+        when(employeeRepository.save(any(Employee.class))).thenReturn(alex);
+
+        MvcResult mvcResult = mockMvc.perform(put("/employee/1")
+                .content(objectMapper.writeValueAsString(alex))
+                .contentType("application/json")).andReturn();
+
+        // then
+        assertThat(objectMapper.writeValueAsString(alex))
+                .isEqualToIgnoringWhitespace(mvcResult.getResponse().getContentAsString());
     }
 
     @Test
