@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
 public class EmployeeController {
@@ -33,7 +32,13 @@ public class EmployeeController {
     @PutMapping("/employee/{employeeId}")
     public Employee updateEmployee(@PathVariable Long employeeId, @Valid @RequestBody Employee employeeRequest) {
         return employeeRepository.findById(employeeId).map(employee -> {
+            // map request to employee object with same Id.
             employee.setFirstName(employeeRequest.getFirstName());
+            employee.setLastName(employeeRequest.getLastName());
+            employee.setAddress(employeeRequest.getAddress());
+            employee.setEmail(employeeRequest.getEmail());
+            employee.setPhone(employeeRequest.getPhone());
+
             return employeeRepository.save(employee);
         }).orElseThrow(() -> new ResourceNotFoundException(String.format("Employee not found with id %d", employeeId)));
     }
