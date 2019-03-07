@@ -51,8 +51,20 @@ public class EmployeeRestControllerTest {
 
     @Test
     @Ignore
-    public void whenGetEmployee_thenReturnsPageRequestJson() throws Exception {
+    public void whenGetEmployee_thenReturnsPageRequestJson() {
         throw new NotImplementedException();
+    }
+
+    @Test
+    public void whenGetEmployeeSingle_thenReturns200() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
+
+        mockMvc.perform(get("/employee/1")).andExpect(status().isOk());
     }
 
     @Test
