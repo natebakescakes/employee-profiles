@@ -57,7 +57,7 @@ public class EmployeeRestControllerTest {
     }
 
     @Test
-    public void whenGetEmployeeSingle_thenReturns200() throws Exception {
+    public void whenGetEmployeeSingleValid_thenReturns200() throws Exception {
         // given
         Employee alex = new Employee();
         alex.setFirstName("Alex");
@@ -69,7 +69,12 @@ public class EmployeeRestControllerTest {
     }
 
     @Test
-    public void whenGetEmployeeSingle_thenMapToFindById() throws Exception {
+    public void whenGetEmployeeSingleInvalid_thenReturns404() throws Exception {
+        mockMvc.perform(get("/employee/1")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void whenGetEmployeeSingleValid_thenMapToFindById() throws Exception {
         // when
         mockMvc.perform((get("/employee/1")));
 
