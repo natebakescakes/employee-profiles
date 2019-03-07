@@ -2,6 +2,7 @@ package com.example.employeeprofiles.controller;
 
 import com.example.employeeprofiles.model.Employee;
 import com.example.employeeprofiles.repository.EmployeeRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -65,6 +66,34 @@ public class EmployeeRestControllerTest {
         when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
 
         mockMvc.perform(get("/employee/1")).andExpect(status().isOk());
+    }
+
+    @Test
+    public void whenGetEmployeeSingle_thenMapToFindById() throws Exception {
+        // when
+        mockMvc.perform((get("/employee/1")));
+
+        // then
+        verify(employeeRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
+    public void whenGetEmployeeSingle_thenReturnsEmployeeJson() throws Exception {
+        // given
+        Employee alex = new Employee();
+        alex.setFirstName("Alex");
+        alex.setLastName("Test");
+
+        // when
+        when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
+
+        MvcResult mvcResult = mockMvc.perform(get("/employee/1")
+                .content(objectMapper.writeValueAsString(alex))
+                .contentType("application/json")).andReturn();
+
+        // then
+        assertThat(objectMapper.writeValueAsString(alex))
+                .isEqualToIgnoringWhitespace(mvcResult.getResponse().getContentAsString());
     }
 
     @Test
