@@ -38,13 +38,13 @@ public class EmployeeRestControllerTest {
 
     @Test
     public void whenGetEmployee_thenReturns200() throws Exception {
-        mockMvc.perform(get("/employee")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/employee")).andExpect(status().isOk());
     }
 
     @Test
     public void whenGetEmployee_thenMapToFindAll() throws Exception {
         // when
-        mockMvc.perform(get("/employee"));
+        mockMvc.perform(get("/api/employee"));
 
         // then
         verify(employeeRepository, times(1)).findAll(any(PageRequest.class));
@@ -65,18 +65,18 @@ public class EmployeeRestControllerTest {
 
         when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
 
-        mockMvc.perform(get("/employee/1")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/employee/1")).andExpect(status().isOk());
     }
 
     @Test
     public void whenGetEmployeeSingleInvalid_thenReturns404() throws Exception {
-        mockMvc.perform(get("/employee/1")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/employee/1")).andExpect(status().isNotFound());
     }
 
     @Test
     public void whenGetEmployeeSingleValid_thenMapToFindById() throws Exception {
         // when
-        mockMvc.perform((get("/employee/1")));
+        mockMvc.perform((get("/api/employee/1")));
 
         // then
         verify(employeeRepository, times(1)).findById(anyLong());
@@ -92,7 +92,7 @@ public class EmployeeRestControllerTest {
         // when
         when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
 
-        MvcResult mvcResult = mockMvc.perform(get("/employee/1")
+        MvcResult mvcResult = mockMvc.perform(get("/api/employee/1")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json")).andReturn();
 
@@ -108,7 +108,7 @@ public class EmployeeRestControllerTest {
         alex.setFirstName("Alex");
         alex.setLastName("Test");
 
-        mockMvc.perform(post("/employee")
+        mockMvc.perform(post("/api/employee")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json"))
                 .andExpect(status().isOk());
@@ -120,7 +120,7 @@ public class EmployeeRestControllerTest {
         Employee alex = new Employee();
         alex.setFirstName("Alex");
 
-        mockMvc.perform(post("/employee")
+        mockMvc.perform(post("/api/employee")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json"))
                 .andExpect(status().isBadRequest());
@@ -134,7 +134,7 @@ public class EmployeeRestControllerTest {
         alex.setLastName("Test");
 
         // when
-        mockMvc.perform(post("/employee")
+        mockMvc.perform(post("/api/employee")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json"));
 
@@ -155,7 +155,7 @@ public class EmployeeRestControllerTest {
         // when
         when(employeeRepository.save(any(Employee.class))).thenReturn(alex);
 
-        MvcResult mvcResult = mockMvc.perform(post("/employee")
+        MvcResult mvcResult = mockMvc.perform(post("/api/employee")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json")).andReturn();
 
@@ -175,7 +175,7 @@ public class EmployeeRestControllerTest {
         when(employeeRepository.save(any(Employee.class))).thenReturn(alex);
 
         // then
-        mockMvc.perform(put("/employee/1")
+        mockMvc.perform(put("/api/employee/1")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json"))
                 .andExpect(status().isOk());
@@ -189,7 +189,7 @@ public class EmployeeRestControllerTest {
         alex.setLastName("Test");
 
         // then
-        mockMvc.perform(put("/employee/2")
+        mockMvc.perform(put("/api/employee/2")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json"))
                 .andExpect(status().isNotFound());
@@ -204,7 +204,7 @@ public class EmployeeRestControllerTest {
 
         // when
         when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
-        mockMvc.perform(post("/employee")
+        mockMvc.perform(post("/api/employee")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json"));
 
@@ -226,7 +226,7 @@ public class EmployeeRestControllerTest {
         when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
         when(employeeRepository.save(any(Employee.class))).thenReturn(alex);
 
-        MvcResult mvcResult = mockMvc.perform(put("/employee/1")
+        MvcResult mvcResult = mockMvc.perform(put("/api/employee/1")
                 .content(objectMapper.writeValueAsString(alex))
                 .contentType("application/json")).andReturn();
 
@@ -245,14 +245,14 @@ public class EmployeeRestControllerTest {
         when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
 
         // then
-        mockMvc.perform(delete("/employee/1"))
+        mockMvc.perform(delete("/api/employee/1"))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void whenDeleteEmployeeWithInvalidId_thenReturns404() throws Exception {
         // given
-        mockMvc.perform(delete("/employee/1"))
+        mockMvc.perform(delete("/api/employee/1"))
                 .andExpect(status().isNotFound());
     }
 
@@ -265,7 +265,7 @@ public class EmployeeRestControllerTest {
 
         // when
         when(employeeRepository.findById(anyLong())).thenReturn(java.util.Optional.of(alex));
-        mockMvc.perform(delete("/employee/1"));
+        mockMvc.perform(delete("/api/employee/1"));
 
         // then
         ArgumentCaptor<Employee> employeeCaptor = ArgumentCaptor.forClass(Employee.class);
